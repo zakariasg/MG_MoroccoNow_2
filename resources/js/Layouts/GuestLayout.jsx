@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
+import Footer from '@/Components/Footer';
 
 function ChevronIcon({ open }) {
     return (
@@ -135,6 +136,7 @@ export default function GuestLayout({ children }) {
             </nav>
 
             <main>{children}</main>
+            <Footer />
         </div>
     );
 }
