@@ -1,7 +1,7 @@
 export default function StatsSection({ stats }) {
     const items = [
         { label: 'Companies Supported', value: stats?.companies ?? 10 },
-        { label: 'Jobs In 2025', value: stats?.jobs ?? 830 },
+        { label: 'Jobs In 2023', value: stats?.jobs ?? 830 },
         { label: 'SMEs', value: stats?.smes ?? 75 },
         { label: 'Partners', value: stats?.partners ?? 10 },
     ];

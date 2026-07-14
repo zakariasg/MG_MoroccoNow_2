@@ -32,13 +32,22 @@ export default function HeroSlider() {
 
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative z-10 h-full flex items-center justify-center text-center px-8">
-                <h1 className="text-white text-3xl md:text-5xl font-bold uppercase leading-tight">
-                    INVEST IN MOROCCO
-                    <br />
-                    AND EXPORT TO THE WORLD
-                </h1>
-            </div>
+        <div className="relative z-10 h-full flex items-center justify-center text-center px-8">
+    <h1 className="text-white text-3xl md:text-5xl font-bold uppercase leading-tight flex items-center justify-center gap-4">
+            <img 
+                src="/images/shapes/union.svg" 
+                alt="Union icon" 
+                className="w-25 h-25 md:w-28 md:h-28 flex-shrink-0"
+            />
+            <span>
+                INVEST IN MOROCCO
+                <br />
+                AND EXPORT TO
+                <br />
+                THE WORLD
+            </span>
+    </h1>
+</div>
         </section>
     );
 }
