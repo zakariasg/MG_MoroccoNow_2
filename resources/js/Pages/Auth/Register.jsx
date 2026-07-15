@@ -1,14 +1,16 @@
 import AuthSplitLayout from '@/Layouts/AuthSplitLayout';
 import AuthTabs from '@/Components/AuthTabs';
 import IconInput from '@/Components/IconInput';
+import IconSelect from '@/Components/IconSelect';
 import InputError from '@/Components/InputError';
-import { EnvelopeIcon, LockIcon, UserIcon } from '@/Components/AuthIcons';
+import { EnvelopeIcon, LockIcon, UserIcon, BriefcaseIcon } from '@/Components/AuthIcons';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
+        account_type: '',
         password: '',
         password_confirmation: '',
     });
@@ -60,6 +62,51 @@ export default function Register() {
                         required
                     />
                     <InputError message={errors.email} className="mt-2" />
+                </div>
+
+                <div>
+                    <IconInput
+                        icon={<UserIcon />}
+                        id="phone"
+                        type="tel"
+                        name="phone"
+                        placeholder="Phone number"
+                        value={data.phone}
+                        autoComplete="tel"
+                        onChange={(e) => setData('phone', e.target.value)}
+                        required
+                    />
+                    <InputError message={errors.phone} className="mt-2" />
+                </div>  
+
+                <div>
+                    <IconInput
+                        icon={<UserIcon />}
+                        id="address"
+                        name="address"
+                        placeholder="Address"
+                        value={data.address}
+                        autoComplete="street-address"
+                        onChange={(e) => setData('address', e.target.value)}
+                        required
+                    />
+                    <InputError message={errors.address} className="mt-2" />
+                </div>
+
+                <div>
+                    <IconSelect
+                        icon={<BriefcaseIcon />}
+                        id="account_type"
+                        name="account_type"
+                        placeholder="Investor / Exporter"
+                        value={data.account_type}
+                        onChange={(e) => setData('account_type', e.target.value)}
+                        required
+                    >
+                        <option value="investor">Investor</option>
+                        <option value="exporter">Exporter</option>
+                    </IconSelect>
+                    <InputError message={errors.account_type} className="mt-2" />
                 </div>
 
                 <div>

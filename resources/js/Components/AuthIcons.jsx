@@ -61,3 +61,38 @@ export function UserIcon(props) {
         </svg>
     );
 }
+
+export function BriefcaseIcon(props) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            className="w-5 h-5"
+            {...props}
+        >
+            <rect x="3" y="8" width="18" height="11" rx="2" strokeLinejoin="round" />
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.5 8V6.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V8"
+            />
+        </svg>
+    );
+}
+
+export function ChevronDownIcon(props) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            className="w-5 h-5"
+            {...props}
+        >
+            <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+        </svg>
+    );
+}
