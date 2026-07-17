@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ pendingUsers, approvedUsers, rejectedUsers }) {
@@ -15,7 +15,7 @@ export default function Index({ pendingUsers, approvedUsers, rejectedUsers }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">Registration requests</h2>}>
+        <AdminLayout header={<h2 className="text-xl font-semibold">Registration requests</h2>}>
             <Head title="Approvals" />
 
             <div className="py-12">
@@ -67,6 +67,6 @@ export default function Index({ pendingUsers, approvedUsers, rejectedUsers }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
