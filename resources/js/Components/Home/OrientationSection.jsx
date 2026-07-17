@@ -56,7 +56,7 @@ const exportReasons = [
     },
 ];
 
-function OrientationPanel({ id, image, label, title, reasons, active }) {
+function OrientationPanel({ id, image, label, title, reasons, active, onClose }) {
     const isActive = active === id;
 
     return (
@@ -103,6 +103,18 @@ function OrientationPanel({ id, image, label, title, reasons, active }) {
                     isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0'
                 }`}
             >
+                {/* Bouton de fermeture : indispensable sur tactile, où il n'y a pas de mouseleave */}
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                    }}
+                    aria-label="Close"
+                    className="absolute top-4 right-4 md:top-6 md:right-6 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 text-white text-xl hover:bg-white/30"
+                >
+                    ×
+                </button>
                 <div className="max-w-5xl w-full mx-auto px-6 md:px-10 py-10 my-auto">
                     <h3 className="text-white font-bold text-2xl md:text-[1.875rem] uppercase text-center mb-10">
                         {title}
@@ -153,7 +165,7 @@ export default function OrientationSection() {
                 Panneaux investisseur / exportateur.
                 `relative` : conteneur de référence pour la grille de détection ci-dessous.
             */}
-            <section className="relative flex flex-col lg:flex-row h-auto lg:h-[830px] mb-5">
+            <section className="relative flex flex-col lg:flex-row h-[700px] sm:h-[780px] lg:h-[830px] mb-5">
                 <OrientationPanel
                     id="invest"
                     image="/images/orientation/invest.png"
@@ -161,6 +173,7 @@ export default function OrientationSection() {
                     title="Reasons To Invest"
                     reasons={investReasons}
                     active={active}
+                    onClose={() => setActive(null)}
                 />
                 <OrientationPanel
                     id="export"
@@ -169,6 +182,7 @@ export default function OrientationSection() {
                     title="Reasons To Export"
                     reasons={exportReasons}
                     active={active}
+                    onClose={() => setActive(null)}
                 />
 
                 {/*
