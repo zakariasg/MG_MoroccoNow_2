@@ -7,16 +7,16 @@ import BusinessEnvironmentSection from '@/Components/Home/BusinessEnvironmentSec
 import HowWeHelpSection from '@/Components/Home/HowWeHelpSection';
 import VisionSection from '@/Components/Home/VisionSection';
 
-export default function Home({ stats }) {
+export default function Home({ stats, hero, visionText }) {
     return (
         <GuestLayout>
-            <HeroSlider />
+            <HeroSlider hero={hero} />
             <StatsSection stats={stats} />
             <OrientationSection />
             <MapSection />
             <BusinessEnvironmentSection />
             <HowWeHelpSection />
-            <VisionSection />
+            <VisionSection text={visionText} />
         </GuestLayout>
     );
 }

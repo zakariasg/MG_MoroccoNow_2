@@ -5,6 +5,7 @@ import { Head, useForm, router } from '@inertiajs/react';
 export default function Index({ news, events, media }) {
     const [activeTab, setActiveTab] = useState('news');
     const [showCreateModal, setShowCreateModal] = useState(null); // 'news', 'event', or 'media'
+    const [editingEvent, setEditingEvent] = useState(null); // event object being edited, or null
 
     // Forms setup using Inertia useForm
     const newsForm = useForm({
@@ -19,6 +20,16 @@ export default function Index({ news, events, media }) {
         description: '',
         event_date: '',
         location: '',
+        link: '',
+        image: null,
+    });
+
+    const editEventForm = useForm({
+        title: '',
+        description: '',
+        event_date: '',
+        location: '',
+        link: '',
         image: null,
     });
 
@@ -46,6 +57,29 @@ export default function Index({ news, events, media }) {
             onSuccess: () => {
                 eventForm.reset();
                 setShowCreateModal(null);
+            }
+        });
+    };
+
+    const openEditEvent = (ev) => {
+        editEventForm.setData({
+            title: ev.title || '',
+            description: ev.description || '',
+            event_date: ev.event_date ? ev.event_date.slice(0, 16) : '',
+            location: ev.location || '',
+            link: ev.link || '',
+            image: null,
+        });
+        setEditingEvent(ev);
+    };
+
+    const handleEditEventSubmit = (e) => {
+        e.preventDefault();
+        editEventForm.post(route('admin.content.event.update', editingEvent.id), {
+            forceFormData: true,
+            onSuccess: () => {
+                editEventForm.reset();
+                setEditingEvent(null);
             }
         });
     };
@@ -164,21 +198,39 @@ export default function Index({ news, events, media }) {
                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                                     {ev.location}
                                                 </div>
-                                                <p className="text-gray-500 text-xs line-clamp-3 flex-1 mb-4">{ev.description}</p>
+                                                <p className="text-gray-500 text-xs line-clamp-3 flex-1 mb-2">{ev.description}</p>
+                                                {ev.link && (
+                                                    <a
+                                                        href={ev.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-teal-700 hover:text-teal-900 text-xs font-semibold mb-2 truncate"
+                                                    >
+                                                        {ev.link}
+                                                    </a>
+                                                )}
                                                 <div className="flex items-center justify-between border-t border-gray-50 pt-4 mt-auto">
                                                     <span className="text-teal-900 text-[11px] font-bold bg-teal-50 px-2.5 py-0.5 rounded-full">
                                                         {new Date(ev.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                     </span>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('Are you sure you want to delete this event?')) {
-                                                                router.delete(route('admin.content.event.destroy', ev.id));
-                                                            }
-                                                        }}
-                                                        className="text-red-600 hover:text-red-800 text-xs font-semibold cursor-pointer"
-                                                    >
-                                                        Delete
-                                                    </button>
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => openEditEvent(ev)}
+                                                            className="text-teal-700 hover:text-teal-900 text-xs font-semibold cursor-pointer"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm('Are you sure you want to delete this event?')) {
+                                                                    router.delete(route('admin.content.event.destroy', ev.id));
+                                                                }
+                                                            }}
+                                                            className="text-red-600 hover:text-red-800 text-xs font-semibold cursor-pointer"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,6 +400,18 @@ export default function Index({ news, events, media }) {
                                 </div>
                             </div>
                             <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                    Learn more link (URL)
+                                </label>
+                                <input
+                                    type="url"
+                                    placeholder="https://example.com/event-details"
+                                    value={eventForm.data.link}
+                                    onChange={e => eventForm.setData('link', e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm"
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Illustration image</label>
                                 <input
                                     type="file"
@@ -362,6 +426,88 @@ export default function Index({ news, events, media }) {
                                 className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-full shadow-lg shadow-teal-700/10 transition cursor-pointer"
                             >
                                 {eventForm.processing ? 'Creating...' : 'Create event'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {editingEvent && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative">
+                        <button onClick={() => setEditingEvent(null)} className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl cursor-pointer">✕</button>
+                        <h3 className="text-xl font-bold text-gray-900 mb-6">Edit event</h3>
+                        <form onSubmit={handleEditEventSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Event title</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editEventForm.data.title}
+                                    onChange={e => editEventForm.setData('title', e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                                <textarea
+                                    required
+                                    value={editEventForm.data.description}
+                                    onChange={e => editEventForm.setData('description', e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm h-24 resize-none"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date & Time</label>
+                                    <input
+                                        type="datetime-local"
+                                        required
+                                        value={editEventForm.data.event_date}
+                                        onChange={e => editEventForm.setData('event_date', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Location / City</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={editEventForm.data.location}
+                                        onChange={e => editEventForm.setData('location', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                    Learn more link (URL)
+                                </label>
+                                <input
+                                    type="url"
+                                    placeholder="https://example.com/event-details"
+                                    value={editEventForm.data.link}
+                                    onChange={e => editEventForm.setData('link', e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                    Replace image (optional)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => editEventForm.setData('image', e.target.files[0])}
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={editEventForm.processing}
+                                className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-full shadow-lg shadow-teal-700/10 transition cursor-pointer"
+                            >
+                                {editEventForm.processing ? 'Saving...' : 'Save changes'}
                             </button>
                         </form>
                     </div>

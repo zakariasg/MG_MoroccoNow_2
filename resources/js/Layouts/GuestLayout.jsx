@@ -85,7 +85,12 @@ export default function GuestLayout({ children }) {
     const investorItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
     const exporterItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
     const whyMoroccoItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
-    const eventsItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
+    const resourcesItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
+    const newsItems = [
+        { label: 'Latest News' },
+        { label: 'Press Releases' },
+        { label: 'Announcements' },
+    ];
 
     return (
         <div className="min-h-screen bg-white">
@@ -99,7 +104,11 @@ export default function GuestLayout({ children }) {
                         <NavDropdown label="Investor" items={investorItems} />
                         <NavDropdown label="Exporter" items={exporterItems} />
                         <NavDropdown label="Why Morocco" items={whyMoroccoItems} />
-                        <NavDropdown label="Events & Resources" items={eventsItems} />
+                        <NavDropdown label="News" items={newsItems} />
+                        <Link href={route('events.index')} className="text-white uppercase text-base font-semibold cursor-pointer">
+                            Events
+                        </Link>
+                        <NavDropdown label="Resources" items={resourcesItems} />
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">
@@ -121,7 +130,11 @@ export default function GuestLayout({ children }) {
                         <MobileNavItem label="Investor" items={investorItems} />
                         <MobileNavItem label="Exporter" items={exporterItems} />
                         <MobileNavItem label="Why Morocco" items={whyMoroccoItems} />
-                        <MobileNavItem label="Events & Resources" items={eventsItems} />
+                        <MobileNavItem label="News" items={newsItems} />
+                        <Link href={route('events.index')} className="text-left">
+                            Events
+                        </Link>
+                        <MobileNavItem label="Resources" items={resourcesItems} />
 
                         <div className="flex flex-col gap-3 pt-4 border-t border-white/20">
                             <Link href={route('login')} className="px-5 py-2 rounded-full bg-white text-black font-semibold text-sm text-center">

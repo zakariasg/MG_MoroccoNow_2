@@ -62,16 +62,9 @@ function OrientationPanel({ id, image, label, title, reasons, active, onClose, c
 
     return (
         // pointer-events-none : ce panneau n'intercepte plus jamais la souris,
-        // c'est la grille fixe au-dessus qui gère le survol (voir plus bas).
-        // z-10 quand actif : garantit que le panneau (et donc son bouton CTA)
-        // passe TOUJOURS au-dessus de la grille de détection (z-0), quel que
-        // soit l'ordre de peinture du navigateur — sinon la grille peut
-        // intercepter le clic sur "Be Investor" / "Be Exporter" et empêcher
-        // la navigation vers la page d'inscription.
+        // c'est la grille fixe au-dessus qui gère le survol (voir plus bas)
         <div
-            className={`relative overflow-hidden transition-[flex-basis] duration-500 ease-in-out h-full pointer-events-none ${
-                isActive ? 'z-10' : ''
-            }`}
+            className="relative overflow-hidden transition-[flex-basis] duration-500 ease-in-out h-full pointer-events-none"
             style={{ flexBasis: isActive ? '100%' : '0%', flexGrow: isActive ? 0 : 1 }}
         >
             {/* Image de fond */}
@@ -89,78 +82,74 @@ function OrientationPanel({ id, image, label, title, reasons, active, onClose, c
                 style={{ backgroundColor: 'rgba(0,194,148,0.6)', mixBlendMode: 'color' }}
             />
 
-            {/*
-                Titre centré (état par défaut).
-                FIX : rendu conditionnel au lieu de opacity-0. L'ancienne version
-                laissait cet élément monté avec juste opacity-0, ce qui, combiné
-                au filter: blur + mix-blend-mode du panneau, provoquait un résidu
-                visuel ("fantôme" du label) sous le contenu actif dans certains
-                navigateurs (Chromium notamment). En le démontant complètement du
-                DOM quand isActive est vrai, il ne peut plus jamais "fuiter".
-            */}
-            {!isActive && (
-                <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-100">
-                    <span className="flex items-center whitespace-nowrap text-white font-bold text-2xl md:text-4xl uppercase">
-                        <img
-                            src="/images/shapes/arrow.svg"
-                            alt=""
-                            className="h-8 md:h-10 w-auto mr-3 flex-shrink-0"
-                        />
-                        {label}
-                    </span>
-                </div>
-            )}
+            {/* Titre centré (état par défaut) */}
+            <div
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                    isActive ? 'opacity-0' : 'opacity-100'
+                }`}
+            >
+                <span className="flex items-center whitespace-nowrap text-white font-bold text-2xl md:text-4xl uppercase">
+                    <img
+                        src="/images/shapes/arrow.svg"
+                        alt=""
+                        className="h-8 md:h-10 w-auto mr-3 flex-shrink-0"
+                    />
+                    {label}
+                </span>
+            </div>
 
             {/* Contenu détaillé (état actif) */}
-            {isActive && (
-                <div className="absolute inset-0 overflow-y-auto flex items-center justify-center transition-opacity duration-300 z-20 opacity-100 pointer-events-auto">
-                    {/* Bouton de fermeture : indispensable sur tactile, où il n'y a pas de mouseleave */}
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onClose();
-                        }}
-                        aria-label="Close"
-                        className="absolute top-4 right-4 md:top-6 md:right-6 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 text-white text-xl hover:bg-white/30"
-                    >
-                        ×
-                    </button>
-                    <div className="max-w-5xl w-full mx-auto px-6 md:px-10 py-10 my-auto">
-                        <h3 className="text-white font-bold text-2xl md:text-[1.875rem] uppercase text-center mb-10">
-                            {title}
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 mb-10">
-                            {reasons.map((r) => (
-                                <div key={r.title} className="flex items-start gap-4">
-                                    <img
-                                        src={r.icon}
-                                        alt=""
-                                        className="w-14 h-14 md:w-16 md:h-16 flex-shrink-0"
-                                    />
-                                    <div>
-                                        <p className="text-white font-bold uppercase text-[1.125rem] mb-1">
-                                            {r.title}
-                                        </p>
-                                        <p className="text-white text-sm leading-snug">{r.text}</p>
-                                    </div>
+            <div
+                className={`absolute inset-0 overflow-y-auto flex items-center justify-center transition-opacity duration-300 z-20 ${
+                    isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                }`}
+            >
+                {/* Bouton de fermeture : indispensable sur tactile, où il n'y a pas de mouseleave */}
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                    }}
+                    aria-label="Close"
+                    className="absolute top-4 right-4 md:top-6 md:right-6 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 text-white text-xl hover:bg-white/30"
+                >
+                    ×
+                </button>
+                <div className="max-w-5xl w-full mx-auto px-6 md:px-10 py-10 my-auto">
+                    <h3 className="text-white font-bold text-2xl md:text-[1.875rem] uppercase text-center mb-10">
+                        {title}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 mb-10">
+                        {reasons.map((r) => (
+                            <div key={r.title} className="flex items-start gap-4">
+                                <img
+                                    src={r.icon}
+                                    alt=""
+                                    className="w-14 h-14 md:w-16 md:h-16 flex-shrink-0"
+                                />
+                                <div>
+                                    <p className="text-white font-bold uppercase text-[1.125rem] mb-1">
+                                        {r.title}
+                                    </p>
+                                    <p className="text-white text-sm leading-snug">{r.text}</p>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
+                    </div>
 
-                        {/* CTA à l'intérieur du slide actif */}
-                        <div className="flex justify-center">
-                            <Link
-                                href={route('register', { type: ctaType })}
-                                onClick={(e) => e.stopPropagation()}
-                                className="px-10 py-4 rounded-full bg-white text-teal-700 font-bold uppercase text-base md:text-lg tracking-wide transition hover:bg-teal-700 hover:text-white"
-                            >
-                                {ctaLabel}
-                            </Link>
-                        </div>
+                    {/* CTA à l'intérieur du slide actif */}
+                    <div className="flex justify-center">
+                        <Link
+                            href={route('register', { type: ctaType })}
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-10 py-4 rounded-full bg-white text-teal-700 font-bold uppercase text-base md:text-lg tracking-wide transition hover:bg-teal-700 hover:text-white"
+                        >
+                            {ctaLabel}
+                        </Link>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
@@ -213,20 +202,21 @@ export default function OrientationSection() {
                 />
 
                 {/*
-                    Grille de détection du CLIC : TOUJOURS 50/50, ne bouge jamais.
-                    C'est elle qui reçoit le clic, jamais les panneaux animés du dessous.
+                    Grille de détection du survol : TOUJOURS 50/50, ne bouge jamais.
+                    C'est elle qui reçoit la souris, jamais les panneaux animés du dessous.
                     -> plus de frontière mobile, donc plus de flicker/superposition.
-                    L'ouverture se fait uniquement au clic (plus au survol) ;
-                    la fermeture se fait via le bouton "×" (onClose) dans le
-                    panneau actif.
                 */}
                 <div className="absolute inset-0 flex flex-col lg:flex-row pointer-events-none z-0">
                     <div
-                        className={`flex-1 pointer-events-auto ${active === null ? 'cursor-pointer' : ''}`}
+                        className="flex-1 pointer-events-auto"
+                        onMouseEnter={() => setActive('invest')}
+                        onMouseLeave={() => setActive(null)}
                         onClick={() => setActive('invest')}
                     />
                     <div
-                        className={`flex-1 pointer-events-auto ${active === null ? 'cursor-pointer' : ''}`}
+                        className="flex-1 pointer-events-auto"
+                        onMouseEnter={() => setActive('export')}
+                        onMouseLeave={() => setActive(null)}
                         onClick={() => setActive('export')}
                     />
                 </div>

@@ -6,11 +6,27 @@ import InputError from '@/Components/InputError';
 import { EnvelopeIcon, LockIcon, UserIcon, BriefcaseIcon } from '@/Components/AuthIcons';
 import { Head, useForm } from '@inertiajs/react';
 
+function getInitialAccountType() {
+    if (typeof window === 'undefined') return '';
+    const type = new URLSearchParams(window.location.search).get('type');
+    return type === 'investor' || type === 'exporter' ? type : '';
+}
+
+function RequiredLabel({ children }) {
+    return (
+        <label className="block text-xs font-semibold text-gray-500 mb-1.5 ml-1">
+            {children} <span className="text-red-500">*</span>
+        </label>
+    );
+}
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
-        account_type: '',
+        phone: '',
+        address: '',
+        account_type: getInitialAccountType(),
         password: '',
         password_confirmation: '',
     });
@@ -35,6 +51,7 @@ export default function Register() {
 
             <form onSubmit={submit} className="space-y-4">
                 <div>
+                    <RequiredLabel>Full name</RequiredLabel>
                     <IconInput
                         icon={<UserIcon />}
                         id="name"
@@ -50,6 +67,7 @@ export default function Register() {
                 </div>
 
                 <div>
+                    <RequiredLabel>Email</RequiredLabel>
                     <IconInput
                         icon={<EnvelopeIcon />}
                         id="email"
@@ -65,6 +83,7 @@ export default function Register() {
                 </div>
 
                 <div>
+                    <RequiredLabel>Phone number</RequiredLabel>
                     <IconInput
                         icon={<UserIcon />}
                         id="phone"
@@ -77,9 +96,10 @@ export default function Register() {
                         required
                     />
                     <InputError message={errors.phone} className="mt-2" />
-                </div>  
+                </div>
 
                 <div>
+                    <RequiredLabel>Address</RequiredLabel>
                     <IconInput
                         icon={<UserIcon />}
                         id="address"
@@ -94,6 +114,7 @@ export default function Register() {
                 </div>
 
                 <div>
+                    <RequiredLabel>I am an</RequiredLabel>
                     <IconSelect
                         icon={<BriefcaseIcon />}
                         id="account_type"
@@ -110,6 +131,7 @@ export default function Register() {
                 </div>
 
                 <div>
+                    <RequiredLabel>Password</RequiredLabel>
                     <IconInput
                         icon={<LockIcon />}
                         id="password"
@@ -125,6 +147,7 @@ export default function Register() {
                 </div>
 
                 <div>
+                    <RequiredLabel>Confirm password</RequiredLabel>
                     <IconInput
                         icon={<LockIcon />}
                         id="password_confirmation"

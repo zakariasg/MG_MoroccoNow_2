@@ -61,6 +61,7 @@ class AdminContentController extends Controller
             'description' => 'required|string',
             'event_date' => 'required|date',
             'location' => 'required|string|max:255',
+            'link' => 'nullable|url|max:255',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -75,10 +76,40 @@ class AdminContentController extends Controller
             'description' => $request->description,
             'event_date' => $request->event_date,
             'location' => $request->location,
+            'link' => $request->link,
             'image_path' => $imagePath,
         ]);
 
         return redirect()->route('admin.content.index')->with('success', 'Event scheduled successfully.');
+    }
+
+    public function updateEvent(Request $request, Event $event)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'location' => 'required|string|max:255',
+            'link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $data = [
+            'title' => $request->title,
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'location' => $request->location,
+            'link' => $request->link,
+        ];
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('content/events', 'public');
+            $data['image_path'] = '/storage/' . $path;
+        }
+
+        $event->update($data);
+
+        return redirect()->route('admin.content.index')->with('success', 'Event updated successfully.');
     }
 
     public function destroyEvent(Event $event)
@@ -117,6 +148,6 @@ class AdminContentController extends Controller
     public function destroyMedia(MediaResource $media)
     {
         $media->delete();
-        return redirect()->route('admin.content.index')->with('success', 'MMedia deleted.');
+        return redirect()->route('admin.content.index')->with('success', 'Media deleted.');
     }
 }
