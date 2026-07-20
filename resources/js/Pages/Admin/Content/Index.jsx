@@ -19,6 +19,8 @@ export default function Index({ news, events, media }) {
         title: '',
         description: '',
         event_date: '',
+        end_date: '',
+        registration_deadline: '',
         location: '',
         link: '',
         image: null,
@@ -28,6 +30,8 @@ export default function Index({ news, events, media }) {
         title: '',
         description: '',
         event_date: '',
+        end_date: '',
+        registration_deadline: '',
         location: '',
         link: '',
         image: null,
@@ -65,7 +69,9 @@ export default function Index({ news, events, media }) {
         editEventForm.setData({
             title: ev.title || '',
             description: ev.description || '',
-            event_date: ev.event_date ? ev.event_date.slice(0, 16) : '',
+            event_date: ev.event_date ? ev.event_date.slice(0, 10) : '',
+            end_date: ev.end_date ? ev.end_date.slice(0, 10) : '',
+            registration_deadline: ev.registration_deadline ? ev.registration_deadline.slice(0, 10) : '',
             location: ev.location || '',
             link: ev.link || '',
             image: null,
@@ -212,6 +218,9 @@ export default function Index({ news, events, media }) {
                                                 <div className="flex items-center justify-between border-t border-gray-50 pt-4 mt-auto">
                                                     <span className="text-teal-900 text-[11px] font-bold bg-teal-50 px-2.5 py-0.5 rounded-full">
                                                         {new Date(ev.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        {ev.end_date && (
+                                                            <> → {new Date(ev.end_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+                                                        )}
                                                     </span>
                                                     <div className="flex items-center gap-3">
                                                         <button
@@ -379,12 +388,32 @@ export default function Index({ news, events, media }) {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date & Time</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start date</label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         required
                                         value={eventForm.data.event_date}
                                         onChange={e => eventForm.setData('event_date', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End date</label>
+                                    <input
+                                        type="date"
+                                        value={eventForm.data.end_date}
+                                        onChange={e => eventForm.setData('end_date', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration deadline</label>
+                                    <input
+                                        type="date"
+                                        value={eventForm.data.registration_deadline}
+                                        onChange={e => eventForm.setData('registration_deadline', e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
                                     />
                                 </div>
@@ -459,12 +488,32 @@ export default function Index({ news, events, media }) {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date & Time</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start date</label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         required
                                         value={editEventForm.data.event_date}
                                         onChange={e => editEventForm.setData('event_date', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End date</label>
+                                    <input
+                                        type="date"
+                                        value={editEventForm.data.end_date}
+                                        onChange={e => editEventForm.setData('end_date', e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration deadline</label>
+                                    <input
+                                        type="date"
+                                        value={editEventForm.data.registration_deadline}
+                                        onChange={e => editEventForm.setData('registration_deadline', e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-teal-700/50 focus:ring-2 focus:ring-teal-700/10 transition text-sm cursor-pointer"
                                     />
                                 </div>

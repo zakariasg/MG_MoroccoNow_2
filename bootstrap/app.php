@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'gestionnaire' => \App\Http\Middleware\EnsureUserIsGestionnaire::class,
+            'exportateur' => \App\Http\Middleware\EnsureUserIsExportateur::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

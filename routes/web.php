@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminContentController;
+use App\Http\Controllers\Admin\AdminExporterContentController;
 use App\Http\Controllers\Admin\AdminHomeContentController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ExporterSpaceController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Espace bénéficiaire "Exportateur" : accessible après connexion aux utilisateurs
+// dont le rôle est "exportateur" (et dont le compte est approuvé, via CheckUserStatus).
+Route::middleware(['auth', 'exportateur'])->prefix('espace-exportateur')->name('exporter.')->group(function () {
+    Route::get('/profils-marches', [ExporterSpaceController::class, 'marches'])->name('marches');
+    Route::get('/profils-filieres', [ExporterSpaceController::class, 'filieres'])->name('filieres');
+    Route::get('/veille-reglementaire', [ExporterSpaceController::class, 'veille'])->name('veille');
+    Route::get('/evenements', [ExporterSpaceController::class, 'evenements'])->name('evenements');
+    Route::post('/evenements/{event}/inscription', [ExporterSpaceController::class, 'registerEvent'])->name('events.register');
+});
+
 Route::middleware(['auth', 'gestionnaire'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return Inertia::render('Admin/Dashboard');
@@ -54,6 +66,31 @@ Route::middleware(['auth', 'gestionnaire'])->prefix('admin')->name('admin.')->gr
 
     Route::get('/home-content', [AdminHomeContentController::class, 'edit'])->name('home-content.edit');
     Route::put('/home-content', [AdminHomeContentController::class, 'update'])->name('home-content.update');
+
+    // ---- Beneficiary Space Content > Exporter Content Management ----
+    Route::prefix('exporter-content')->name('exporter-content.')->group(function () {
+        Route::get('/', [AdminExporterContentController::class, 'index'])->name('index');
+
+        Route::post('/market-profiles', [AdminExporterContentController::class, 'storeMarketProfile'])->name('market-profiles.store');
+        Route::delete('/market-profiles/{marketProfile}', [AdminExporterContentController::class, 'destroyMarketProfile'])->name('market-profiles.destroy');
+
+        Route::post('/filiere-profiles', [AdminExporterContentController::class, 'storeFiliereProfile'])->name('filiere-profiles.store');
+        Route::delete('/filiere-profiles/{filiereProfile}', [AdminExporterContentController::class, 'destroyFiliereProfile'])->name('filiere-profiles.destroy');
+
+        Route::post('/sectors', [AdminExporterContentController::class, 'storeSector'])->name('sectors.store');
+        Route::delete('/sectors/{sector}', [AdminExporterContentController::class, 'destroySector'])->name('sectors.destroy');
+
+        Route::post('/regulatory-documents', [AdminExporterContentController::class, 'storeRegulatoryDocument'])->name('regulatory-documents.store');
+        Route::delete('/regulatory-documents/{regulatoryDocument}', [AdminExporterContentController::class, 'destroyRegulatoryDocument'])->name('regulatory-documents.destroy');
+
+        Route::post('/registrations/{registration}/approve', [AdminExporterContentController::class, 'approveRegistration'])->name('registrations.approve');
+        Route::post('/registrations/{registration}/reject', [AdminExporterContentController::class, 'rejectRegistration'])->name('registrations.reject');
+    });
+
+    // ---- Beneficiary Space Content > Investor Content Management (placeholder, à développer) ----
+    Route::get('/investor-content', function () {
+        return Inertia::render('Admin/InvestorContent/Index');
+    })->name('investor-content.index');
 });
 
 require __DIR__.'/auth.php';

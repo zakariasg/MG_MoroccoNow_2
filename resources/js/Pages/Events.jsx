@@ -44,7 +44,10 @@ export default function Events({ events }) {
                                     )}
                                     <div className="p-6 flex-1 flex flex-col">
                                         <h3 className="font-bold text-gray-900 text-xl mb-4">{ev.title}</h3>
-                                        <p className="text-gray-700 mb-2">{formatDate(ev.event_date)}</p>
+                                        <p className="text-gray-700 mb-2">
+                                            {formatDate(ev.event_date)}
+                                            {ev.end_date && <> — {formatDate(ev.end_date)}</>}
+                                        </p>
                                         <p className="text-gray-700 mb-6">{ev.location}</p>
 
                                         <div className="mt-auto">
