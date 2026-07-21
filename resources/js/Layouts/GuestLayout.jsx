@@ -43,9 +43,9 @@ function NavDropdown({ label, items }) {
             {open && (
                 <div className="absolute top-full left-0 mt-2 w-48 bg-[#2a2a2a] rounded-lg shadow-lg py-2 z-50">
                     {items.map((item, i) => (
-                        <a key={i} href={item.href || '#'} className="block px-5 py-2.5 text-white text-sm hover:bg-white/10">
+                        <Link key={i} href={item.href || '#'} className="block px-5 py-2.5 text-white text-sm hover:bg-white/10">
                             {item.label}
-                        </a>
+                        </Link>
                     ))}
                 </div>
             )}
@@ -69,9 +69,9 @@ function MobileNavItem({ label, items }) {
             {open && (
                 <div className="pl-4 mt-2 flex flex-col gap-2 normal-case font-normal">
                     {items.map((item, i) => (
-                        <a key={i} href={item.href || '#'} className="text-sm text-white/80">
+                        <Link key={i} href={item.href || '#'} className="text-sm text-white/80">
                             {item.label}
-                        </a>
+                        </Link>
                     ))}
                 </div>
             )}
@@ -87,9 +87,9 @@ export default function GuestLayout({ children }) {
     const whyMoroccoItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
     const resourcesItems = [{ label: 'Item 1' }, { label: 'Item 2' }, { label: 'Item 3' }];
     const newsItems = [
-        { label: 'Latest News' },
-        { label: 'Press Releases' },
-        { label: 'Announcements' },
+        { label: 'Latest News', href: route('news.index') },
+        { label: 'Press Releases', href: route('news.index') },
+        { label: 'Announcements', href: route('news.index') },
     ];
 
     return (

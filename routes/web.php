@@ -8,6 +8,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExporterSpaceController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NewsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,6 +17,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+
+Route::get('/news/{news:slug}', [NewsController::class, 'show'])->name('news.show');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

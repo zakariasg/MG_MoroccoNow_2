@@ -18,4 +18,8 @@ class News extends Model
     protected $casts = [
         'published_at' => 'datetime',
     ];
+    public function getRouteKeyName(): string
+{
+    return 'slug';
+}
 }
