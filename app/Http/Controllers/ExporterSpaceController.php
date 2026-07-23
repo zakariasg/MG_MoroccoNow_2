@@ -35,7 +35,7 @@ class ExporterSpaceController extends Controller
 
     public function evenements(Request $request)
     {
-        $events = Event::orderBy('event_date')->get();
+        $events = Event::exporterSpace()->orderBy('event_date')->get();
 
         $myRegistrations = EventRegistration::where('user_id', $request->user()->id)
             ->get(['event_id', 'status'])
@@ -49,6 +49,10 @@ class ExporterSpaceController extends Controller
 
     public function registerEvent(Request $request, Event $event)
     {
+        if ($event->audience !== 'exporter') {
+            abort(404);
+        }
+
         if (! $event->isRegistrationOpen()) {
             return back()->with('error', "L'inscription à cet événement est expirée.");
         }

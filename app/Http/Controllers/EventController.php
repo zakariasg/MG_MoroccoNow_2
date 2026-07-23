@@ -8,10 +8,9 @@ use Inertia\Inertia;
 class EventController extends Controller
 {
     public function index()
-    
     {
         return Inertia::render('Events', [
-            'events' => Event::orderBy('event_date', 'asc')->get(),
+            'events' => Event::publicSpace()->orderBy('event_date', 'asc')->get(),
         ]);
     }
 }

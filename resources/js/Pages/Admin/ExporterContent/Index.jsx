@@ -29,14 +29,35 @@ function fileClasses() {
     return 'w-full text-xs text-gray-500 file:mr-2 file:py-2.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer';
 }
 
-export default function Index({ marketProfiles, filiereProfiles, sectors, registrations }) {
+export default function Index({ marketProfiles, filiereProfiles, sectors, events, registrations }) {
     const [activeTab, setActiveTab] = useState('marches');
-    const [showModal, setShowModal] = useState(null); // 'market' | 'filiere' | 'sector' | 'document'
+    const [showModal, setShowModal] = useState(null); // 'market' | 'filiere' | 'sector' | 'document' | 'event'
     const [rejectingId, setRejectingId] = useState(null);
+    const [editingEvent, setEditingEvent] = useState(null); // event object being edited, or null
 
     const marketForm = useForm({ country_name: '', year: '', slides: [], document: null });
     const filiereForm = useForm({ title: '', year: '', slides: [], document: null });
     const sectorForm = useForm({ name: '', icon: 'folder' });
+    const eventForm = useForm({
+        title: '',
+        description: '',
+        event_date: '',
+        end_date: '',
+        registration_deadline: '',
+        location: '',
+        link: '',
+        image: null,
+    });
+    const editEventForm = useForm({
+        title: '',
+        description: '',
+        event_date: '',
+        end_date: '',
+        registration_deadline: '',
+        location: '',
+        link: '',
+        image: null,
+    });
     const documentForm = useForm({
         sector_id: sectors[0]?.id || '',
         notifying_member: '',
@@ -92,6 +113,42 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
         });
     };
 
+    const submitEvent = (e) => {
+        e.preventDefault();
+        eventForm.post(route('admin.exporter-content.events.store'), {
+            forceFormData: true,
+            onSuccess: () => {
+                eventForm.reset();
+                setShowModal(null);
+            },
+        });
+    };
+
+    const openEditEvent = (ev) => {
+        editEventForm.setData({
+            title: ev.title || '',
+            description: ev.description || '',
+            event_date: ev.event_date ? ev.event_date.slice(0, 10) : '',
+            end_date: ev.end_date ? ev.end_date.slice(0, 10) : '',
+            registration_deadline: ev.registration_deadline ? ev.registration_deadline.slice(0, 10) : '',
+            location: ev.location || '',
+            link: ev.link || '',
+            image: null,
+        });
+        setEditingEvent(ev);
+    };
+
+    const submitEditEvent = (e) => {
+        e.preventDefault();
+        editEventForm.post(route('admin.exporter-content.events.update', editingEvent.id), {
+            forceFormData: true,
+            onSuccess: () => {
+                editEventForm.reset();
+                setEditingEvent(null);
+            },
+        });
+    };
+
     const submitReject = (e) => {
         e.preventDefault();
         rejectForm.post(route('admin.exporter-content.registrations.reject', rejectingId), {
@@ -106,6 +163,7 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
         { key: 'marches', label: `Profils marchés (${marketProfiles.length})` },
         { key: 'filieres', label: `Profils filières (${filiereProfiles.length})` },
         { key: 'veille', label: `Veille réglementaire (${sectors.length})` },
+        { key: 'evenements', label: `Evénements (${events.length})` },
         { key: 'inscriptions', label: `Inscriptions événements (${registrations.length})` },
     ];
 
@@ -113,6 +171,7 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
         marches: '+ Ajouter un profil marché',
         filieres: '+ Ajouter un profil filière',
         veille: '+ Ajouter',
+        evenements: '+ Ajouter un événement',
         inscriptions: null,
     }[activeTab];
 
@@ -123,7 +182,7 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
                     <h2 className="text-xl font-bold leading-tight text-gray-900">Exporter Content Management</h2>
                     {addButtonLabel && activeTab !== 'veille' && (
                         <button
-                            onClick={() => setShowModal(activeTab === 'marches' ? 'market' : 'filiere')}
+                            onClick={() => setShowModal(activeTab === 'marches' ? 'market' : activeTab === 'evenements' ? 'event' : 'filiere')}
                             className="inline-flex items-center px-4 py-2.5 rounded-full bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm transition shadow-md shadow-teal-700/10 cursor-pointer"
                         >
                             {addButtonLabel}
@@ -341,6 +400,65 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
                             </div>
                         )}
 
+                        {/* Evénements Espace Exportateur */}
+                        {activeTab === 'evenements' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {events.length === 0 ? (
+                                    <p className="text-gray-500 text-sm italic col-span-3 py-6 text-center">
+                                        Aucun événement programmé pour l'Espace Exportateur.
+                                    </p>
+                                ) : (
+                                    events.map((ev) => (
+                                        <div key={ev.id} className="border border-gray-100 rounded-2xl overflow-hidden flex flex-col hover:shadow-md transition">
+                                            {ev.image_path ? (
+                                                <img src={ev.image_path} alt={ev.title} className="h-40 w-full object-cover" />
+                                            ) : (
+                                                <div className="h-40 w-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm font-semibold">Morocco Now Event</div>
+                                            )}
+                                            <div className="p-5 flex-1 flex flex-col">
+                                                <h3 className="font-bold text-gray-900 line-clamp-1 mb-1">{ev.title}</h3>
+                                                {ev.location && (
+                                                    <p className="text-teal-700 text-xs font-semibold mb-2">{ev.location}</p>
+                                                )}
+                                                <p className="text-gray-500 text-xs line-clamp-3 flex-1 mb-2">{ev.description}</p>
+                                                {ev.registration_deadline && (
+                                                    <p className="text-gray-400 text-xs mb-2">
+                                                        Clôture d'inscription : {new Date(ev.registration_deadline).toLocaleDateString('fr-FR')}
+                                                    </p>
+                                                )}
+                                                <div className="flex items-center justify-between border-t border-gray-50 pt-4 mt-auto">
+                                                    <span className="text-teal-900 text-[11px] font-bold bg-teal-50 px-2.5 py-0.5 rounded-full">
+                                                        {new Date(ev.event_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        {ev.end_date && (
+                                                            <> → {new Date(ev.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+                                                        )}
+                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => openEditEvent(ev)}
+                                                            className="text-teal-700 hover:text-teal-900 text-xs font-semibold cursor-pointer"
+                                                        >
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm('Supprimer cet événement ?')) {
+                                                                    router.delete(route('admin.exporter-content.events.destroy', ev.id));
+                                                                }
+                                                            }}
+                                                            className="text-red-600 hover:text-red-800 text-xs font-semibold cursor-pointer"
+                                                        >
+                                                            Supprimer
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+
                         {/* Inscriptions événements */}
                         {activeTab === 'inscriptions' && (
                             <div className="overflow-x-auto">
@@ -547,6 +665,104 @@ export default function Index({ marketProfiles, filiereProfiles, sectors, regist
                             </div>
                             <button type="submit" disabled={documentForm.processing} className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-full shadow-lg shadow-teal-700/10 transition cursor-pointer">
                                 {documentForm.processing ? 'Ajout...' : 'Ajouter la notification'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal: create event */}
+            {showModal === 'event' && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative my-8">
+                        <button onClick={() => setShowModal(null)} className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl cursor-pointer">✕</button>
+                        <h3 className="text-xl font-bold text-gray-900 mb-6">Ajouter un événement</h3>
+                        <form onSubmit={submitEvent} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Titre de l'événement</label>
+                                <input type="text" required value={eventForm.data.title} onChange={(e) => eventForm.setData('title', e.target.value)} className={inputClasses()} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                                <textarea required value={eventForm.data.description} onChange={(e) => eventForm.setData('description', e.target.value)} className={inputClasses() + ' h-24 resize-none'} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date de début</label>
+                                    <input type="date" required value={eventForm.data.event_date} onChange={(e) => eventForm.setData('event_date', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date de fin</label>
+                                    <input type="date" value={eventForm.data.end_date} onChange={(e) => eventForm.setData('end_date', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Clôture d'inscription</label>
+                                <input type="date" value={eventForm.data.registration_deadline} onChange={(e) => eventForm.setData('registration_deadline', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lieu</label>
+                                <input type="text" required value={eventForm.data.location} onChange={(e) => eventForm.setData('location', e.target.value)} className={inputClasses()} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lien (optionnel)</label>
+                                <input type="url" value={eventForm.data.link} onChange={(e) => eventForm.setData('link', e.target.value)} className={inputClasses()} placeholder="https://..." />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Image</label>
+                                <input type="file" accept="image/*" onChange={(e) => eventForm.setData('image', e.target.files[0])} className={fileClasses()} />
+                            </div>
+                            <button type="submit" disabled={eventForm.processing} className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-full shadow-lg shadow-teal-700/10 transition cursor-pointer">
+                                {eventForm.processing ? 'Ajout...' : 'Ajouter l\'événement'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal: edit event */}
+            {editingEvent && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative my-8">
+                        <button onClick={() => setEditingEvent(null)} className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl cursor-pointer">✕</button>
+                        <h3 className="text-xl font-bold text-gray-900 mb-6">Modifier l'événement</h3>
+                        <form onSubmit={submitEditEvent} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Titre de l'événement</label>
+                                <input type="text" required value={editEventForm.data.title} onChange={(e) => editEventForm.setData('title', e.target.value)} className={inputClasses()} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                                <textarea required value={editEventForm.data.description} onChange={(e) => editEventForm.setData('description', e.target.value)} className={inputClasses() + ' h-24 resize-none'} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date de début</label>
+                                    <input type="date" required value={editEventForm.data.event_date} onChange={(e) => editEventForm.setData('event_date', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date de fin</label>
+                                    <input type="date" value={editEventForm.data.end_date} onChange={(e) => editEventForm.setData('end_date', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Clôture d'inscription</label>
+                                <input type="date" value={editEventForm.data.registration_deadline} onChange={(e) => editEventForm.setData('registration_deadline', e.target.value)} className={inputClasses() + ' cursor-pointer'} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lieu</label>
+                                <input type="text" required value={editEventForm.data.location} onChange={(e) => editEventForm.setData('location', e.target.value)} className={inputClasses()} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lien (optionnel)</label>
+                                <input type="url" value={editEventForm.data.link} onChange={(e) => editEventForm.setData('link', e.target.value)} className={inputClasses()} placeholder="https://..." />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nouvelle image (optionnel)</label>
+                                <input type="file" accept="image/*" onChange={(e) => editEventForm.setData('image', e.target.files[0])} className={fileClasses()} />
+                            </div>
+                            <button type="submit" disabled={editEventForm.processing} className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-full shadow-lg shadow-teal-700/10 transition cursor-pointer">
+                                {editEventForm.processing ? 'Mise à jour...' : 'Mettre à jour'}
                             </button>
                         </form>
                     </div>

@@ -16,7 +16,7 @@ class AdminContentController extends Controller
     {
         return Inertia::render('Admin/Content/Index', [
             'news' => News::latest()->get(),
-            'events' => Event::latest()->get(),
+            'events' => Event::publicSpace()->latest()->get(),
             'media' => MediaResource::latest()->get(),
         ]);
     }
@@ -75,6 +75,7 @@ class AdminContentController extends Controller
 
         Event::create([
             'title' => $request->title,
+            'audience' => 'public',
             'description' => $request->description,
             'event_date' => $request->event_date,
             'end_date' => $request->end_date,
@@ -89,6 +90,8 @@ class AdminContentController extends Controller
 
     public function updateEvent(Request $request, Event $event)
     {
+        abort_if($event->audience !== 'public', 404);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -122,6 +125,8 @@ class AdminContentController extends Controller
 
     public function destroyEvent(Event $event)
     {
+        abort_if($event->audience !== 'public', 404);
+
         $event->delete();
         return redirect()->route('admin.content.index')->with('success', 'Event deleted.');
     }

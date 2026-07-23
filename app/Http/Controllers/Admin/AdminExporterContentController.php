@@ -20,6 +20,7 @@ class AdminExporterContentController extends Controller
             'marketProfiles' => MarketProfile::orderBy('order_index')->orderBy('country_name')->get(),
             'filiereProfiles' => FiliereProfile::orderBy('order_index')->orderBy('title')->get(),
             'sectors' => Sector::with('regulatoryDocuments')->orderBy('order_index')->orderBy('name')->get(),
+            'events' => Event::exporterSpace()->latest()->get(),
             'registrations' => EventRegistration::with(['event:id,title,event_date', 'user:id,name,email'])
                 ->latest()
                 ->get(),
@@ -166,6 +167,86 @@ class AdminExporterContentController extends Controller
         $regulatoryDocument->delete();
 
         return redirect()->route('admin.exporter-content.index')->with('success', 'Notification supprimée.');
+    }
+
+    // ---------- Evénements Espace Exportateur (avec formulaire d'inscription) ----------
+
+    public function storeEvent(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:event_date',
+            'registration_deadline' => 'nullable|date',
+            'location' => 'required|string|max:255',
+            'link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('content/events', 'public');
+            $imagePath = '/storage/' . $path;
+        }
+
+        Event::create([
+            'title' => $request->title,
+            'audience' => 'exporter',
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'end_date' => $request->end_date,
+            'registration_deadline' => $request->registration_deadline,
+            'location' => $request->location,
+            'link' => $request->link,
+            'image_path' => $imagePath,
+        ]);
+
+        return redirect()->route('admin.exporter-content.index')->with('success', 'Evénement ajouté.');
+    }
+
+    public function updateEvent(Request $request, Event $event)
+    {
+        abort_if($event->audience !== 'exporter', 404);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:event_date',
+            'registration_deadline' => 'nullable|date',
+            'location' => 'required|string|max:255',
+            'link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $data = [
+            'title' => $request->title,
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'end_date' => $request->end_date,
+            'registration_deadline' => $request->registration_deadline,
+            'location' => $request->location,
+            'link' => $request->link,
+        ];
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('content/events', 'public');
+            $data['image_path'] = '/storage/' . $path;
+        }
+
+        $event->update($data);
+
+        return redirect()->route('admin.exporter-content.index')->with('success', 'Evénement mis à jour.');
+    }
+
+    public function destroyEvent(Event $event)
+    {
+        abort_if($event->audience !== 'exporter', 404);
+
+        $event->delete();
+
+        return redirect()->route('admin.exporter-content.index')->with('success', 'Evénement supprimé.');
     }
 
     // ---------- Inscriptions aux événements ----------

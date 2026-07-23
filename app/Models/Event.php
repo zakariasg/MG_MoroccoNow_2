@@ -10,6 +10,7 @@ class Event extends Model
 {
     protected $fillable = [
         'title',
+        'audience',
         'description',
         'event_date',
         'end_date',
@@ -28,6 +29,22 @@ class Event extends Model
     public function registrations(): HasMany
     {
         return $this->hasMany(EventRegistration::class);
+    }
+
+    /**
+     * Evénements de la session publique (page /events, sans formulaire d'inscription).
+     */
+    public function scopePublicSpace($query)
+    {
+        return $query->where('audience', 'public');
+    }
+
+    /**
+     * Evénements de l'Espace Exportateur (onglet "Evénements", avec formulaire d'inscription).
+     */
+    public function scopeExporterSpace($query)
+    {
+        return $query->where('audience', 'exporter');
     }
 
     /**

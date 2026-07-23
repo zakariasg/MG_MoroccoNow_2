@@ -88,6 +88,10 @@ Route::middleware(['auth', 'gestionnaire'])->prefix('admin')->name('admin.')->gr
         Route::post('/regulatory-documents', [AdminExporterContentController::class, 'storeRegulatoryDocument'])->name('regulatory-documents.store');
         Route::delete('/regulatory-documents/{regulatoryDocument}', [AdminExporterContentController::class, 'destroyRegulatoryDocument'])->name('regulatory-documents.destroy');
 
+        Route::post('/events', [AdminExporterContentController::class, 'storeEvent'])->name('events.store');
+        Route::post('/events/{event}', [AdminExporterContentController::class, 'updateEvent'])->name('events.update');
+        Route::delete('/events/{event}', [AdminExporterContentController::class, 'destroyEvent'])->name('events.destroy');
+
         Route::post('/registrations/{registration}/approve', [AdminExporterContentController::class, 'approveRegistration'])->name('registrations.approve');
         Route::post('/registrations/{registration}/reject', [AdminExporterContentController::class, 'rejectRegistration'])->name('registrations.reject');
     });
